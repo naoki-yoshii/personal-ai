@@ -5,5 +5,12 @@
   "workspaces": [
     "apps/*",
     "packages/*"
-  ], "scripts": { "lint": "eslint \\"apps/**/*.{ts,tsx,js,jsx}\\" \\"packages/**/*.{ts,tsx,js,jsx}\\"", "format": "prettier . --check", "format:fix": "prettier . --write" }
+  ],
+  "scripts": {
+    "lint": "eslint \"apps/**/*.{ts,tsx,js,jsx}\" \"packages/**/*.{ts,tsx,js,jsx}\"",
+    "format": "prettier . --check",
+    "format:fix": "prettier . --write",
+    "build": "echo \"(暫定) まだビルド対象が無いので成功扱い\"",
+    "test": "echo \"(暫定) テストなし\" && exit 0"
+  }
 }
