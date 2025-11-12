@@ -1,0 +1,93 @@
+﻿name: ci
+
+on:
+  pull_request:
+    branches: [ main ]
+  push:
+    branches: [ main ]
+
+# 同じPRで古いジョブをキャンセル（リソース節約）
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  setup:
+    name: setup
+    runs-on: ubuntu-latest
+    outputs:
+      node: ${{ steps.node.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node LTS + pnpm
+        uses: actions/setup-node@v4
+        with:
+          node-version: "lts/*"
+          cache: "pnpm"
+      - run: corepack enable
+      - run: corepack prepare pnpm@9 --activate
+      - id: node
+        run: echo "version=$(node -v)" >> "$GITHUB_OUTPUT"
+
+  lint:
+    name: lint
+    runs-on: ubuntu-latest
+    needs: setup
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "lts/*"
+          cache: "pnpm"
+      - run: corepack enable
+      - run: corepack prepare pnpm@9 --activate
+      - run: pnpm install --frozen-lockfile=false
+      - run: pnpm run lint --if-present
+
+  format:
+    name: format
+    runs-on: ubuntu-latest
+    needs: setup
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "lts/*"
+          cache: "pnpm"
+      - run: corepack enable
+      - run: corepack prepare pnpm@9 --activate
+      - run: pnpm install --frozen-lockfile=false
+      # 失敗で落ちる（整形されていないとRedにする）
+      - run: pnpm run format --if-present
+
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    needs: [lint, format]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "lts/*"
+          cache: "pnpm"
+      - run: corepack enable
+      - run: corepack prepare pnpm@9 --activate
+      - run: pnpm install --frozen-lockfile=false
+      # monorepo全体のビルド。存在しなければスキップ
+      - run: pnpm run build --if-present
+
+  test:
+    name: test
+    runs-on: ubuntu-latest
+    needs: [lint, format]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "lts/*"
+          cache: "pnpm"
+      - run: corepack enable
+      - run: corepack prepare pnpm@9 --activate
+      - run: pnpm install --frozen-lockfile=false
+      # vitest / jest などがセットされていれば実行、無ければスキップ
+      - run: pnpm run test --if-present
