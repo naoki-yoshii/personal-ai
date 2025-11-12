@@ -1,0 +1,10 @@
+﻿/** Monorepo root ESLint */
+module.exports = {
+  root: true,
+  parser: "@typescript-eslint/parser",
+  plugins: ["@typescript-eslint"],
+  extends: ["eslint:recommended", "plugin:@typescript-eslint/recommended", "prettier"],
+  parserOptions: { ecmaVersion: "latest", sourceType: "module" },
+  env: { node: true, es2022: true, browser: true },
+  ignorePatterns: ["**/node_modules/**", "**/dist/**", "**/.next/**"]
+};

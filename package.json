@@ -5,5 +5,5 @@
   "workspaces": [
     "apps/*",
     "packages/*"
-  ]
+  ], "scripts": { "lint": "eslint \\"apps/**/*.{ts,tsx,js,jsx}\\" \\"packages/**/*.{ts,tsx,js,jsx}\\"", "format": "prettier . --check", "format:fix": "prettier . --write" }
 }
